@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String?
+  ideas     ContentIdea[]
+  searches  SearchLimit[]
+  createdAt DateTime @default(now())
+}
+
+model ContentIdea {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  topic           String
+  toolName        String?
+  businessCase    String?
+  strategyDesc    String   @db.Text
+  searchableGroup String   // "Pesquisável" ou "Viral"
+  category        String   // "Educativo", "Autoridade", "Relacionamento", "Oferta"
+  createdAt       DateTime @default(now())
+}
+
+model SearchLimit {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  date      DateTime @default(now())
+  count     Int      @default(0)
+
+  @@unique([userId, date])
+}
